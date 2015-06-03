@@ -1,8 +1,26 @@
-require (lubridate)
-require (dplyr)
+dataFile="./household_power_consumption.txt"
+plotFile="./figure/plot1.png"
 
-powerData <- read.csv ("./household_power_consumption.txt",
-   colClasses = c("character","character","numeric","numeric","numeric","numeric",
-                   "numeric","numeric","numeric") , sep =';' , na.strings='?')
-# powerData <- mutate (powerData, DateTime = dmy_hms(paste(powerData$Date,powerData$Time)) )
-powerData2<- subset(powerData, (Date == "01/02/2007" | Date == "01/02/2007") )
+readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/2007")) {
+   powerData <- read.csv (powerFile,
+                          colClasses = c("character","character","numeric","numeric","numeric","numeric",
+                          "numeric","numeric","numeric") , sep =';' , na.strings='?', nrows = numRows)
+   powerData2<- subset(powerData, (Date %in% dates ))
+   rm(powerData)
+   powerData2
+   }
+
+makePlot <- function (outputFile,plotData,type="default") {
+   if (type == "png") { 
+     png(filename=outputFile,width = 480, height = 480, units = "px")
+   } 
+   
+   hist(plotData$Global_active_power,20, col="red", 
+        main="Global Active Power", 
+        xlab="Global Active Power (kilowatts)")
+   
+   if (type == "png") { dev.off()}  
+}
+
+householdData <- readHouseholdPower(dataFile)
+makePlot (plotFile,householdData,"png")
