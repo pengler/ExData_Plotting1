@@ -1,0 +1,33 @@
+# History files
+.Rhistory
+.Rapp.history
+.RData
+.R*
+
+# Example code in package build process
+*-Ex.R
+
+# RStudio files
+.Rproj.user/
+
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+
+#Data files
+*.pdf
+*.txt
+*.csv
+
+#Auth files
+.httr-oauth
+
+# Zip files
+*.zip
+
+#swap files
+.*.swp
+
+# Datasets
+UCI HAR Dataset/*
+
