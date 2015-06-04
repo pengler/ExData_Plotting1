@@ -1,6 +1,6 @@
 dataFile="./household_power_consumption.txt"
 plotFile="./figure/plot2.png"
-
+dates=c("1/2/2007","2/2/2007")
 
 ##########################################
 ## readHouseholdPower
@@ -8,7 +8,7 @@ plotFile="./figure/plot2.png"
 ## 
 ## Provide some rational defaults for the dates and number
 ## of rows to read, to allow for quicker debugging and testing
-readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/2007")) {
+readHouseholdPower <- function(powerFile, dates=c("1/1/1970"), numRows=-1) {
    powerData <- read.csv (powerFile,
                           colClasses = c("character","character","numeric","numeric","numeric","numeric",
                           "numeric","numeric","numeric") , sep =';' , na.strings='?', nrows = numRows)
@@ -19,6 +19,16 @@ readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/20
    powerData2
    }
 
+
+##########################################
+## buildXAxis - Build our X axis based on dates
+##
+## Prototype - pass in the vector of dates as strings
+##           - convert to date objects
+##           - add additional date at the end
+##           - return the vector as string 
+##           - use the length of the vector to set at points
+
 ##########################################
 ## makePlot - plot 2 - single value line graph
 ## Build a histoogram of the data 
@@ -27,7 +37,10 @@ readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/20
 ## type = "png" option is passed in then the histogram 
 ## will be written to a file specifice by outputFile
 
-makePlot <- function (outputFile,plotData,type="default") {
+
+## we will call the buildXAxis here
+
+makePlot <- function (outputFile, plotData, dates=c("1/1/1970"), type="default") {
    if (type == "png") { 
      png(filename=outputFile,width = 480, height = 480, units = "px")
    } 
@@ -39,5 +52,5 @@ makePlot <- function (outputFile,plotData,type="default") {
    if (type == "png") { dev.off()}  
 }
 
-householdData <- readHouseholdPower(dataFile)
-makePlot (plotFile,householdData,"png")
+householdData <- readHouseholdPower(dataFile,dates)
+makePlot (plotFile,householdData,dates, "png")
