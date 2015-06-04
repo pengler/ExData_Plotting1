@@ -1,5 +1,5 @@
 dataFile="./household_power_consumption.txt"
-plotFile="./figure/plot1.png"
+plotFile="./figure/plot2.png"
 
 
 ##########################################
@@ -14,11 +14,13 @@ readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/20
                           "numeric","numeric","numeric") , sep =';' , na.strings='?', nrows = numRows)
    powerData2<- subset(powerData, (Date %in% dates ))
    rm(powerData)  #clean up some memory
+   # convert the "Date" column to date objects
+   powerData2$Date <- as.Date(powerData2$Date)
    powerData2
    }
 
 ##########################################
-## makePlot
+## makePlot - plot 2 - single value line graph
 ## Build a histoogram of the data 
 ## 
 ## Default is to output to the screen, however if
@@ -30,10 +32,10 @@ makePlot <- function (outputFile,plotData,type="default") {
      png(filename=outputFile,width = 480, height = 480, units = "px")
    } 
    
-   hist(plotData$Global_active_power,20, col="red", 
-        main="Global Active Power", 
-        xlab="Global Active Power (kilowatts)")
-   
+   plot (plotData$Global_active_power, type="l", 
+         main ="", ylab = "Global Active Power (kilowatts)", xlab="",
+         xaxt ="n")
+   axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
    if (type == "png") { dev.off()}  
 }
 
