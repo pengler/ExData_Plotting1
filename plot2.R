@@ -23,11 +23,19 @@ readHouseholdPower <- function(powerFile, dates=c("1/1/1970"), numRows=-1) {
 ##########################################
 ## buildXAxis - Build our X axis based on dates
 ##
-## Prototype - pass in the vector of dates as strings
-##           - convert to date objects
-##           - add additional date at the end
-##           - return the vector as string 
-##           - use the length of the vector to set at points
+## Pass in the vector of dates as strings, return a list of days
+
+buildXaxis <- function (dates) {
+  #convert to dates
+  dates <- strptime(dates, "%d/%m/%Y")
+  #append an additional date to allow for fence-posting
+  newDay <- dates[length(dates)]
+  newDay$mday <- newDay$mday+1
+  dates <- append (dates,newDay)
+  #convert to strings
+  days <- format(dates,"%a")
+  days
+}
 
 ##########################################
 ## makePlot - plot 2 - single value line graph
@@ -48,9 +56,10 @@ makePlot <- function (outputFile, plotData, dates=c("1/1/1970"), type="default")
    plot (plotData$Global_active_power, type="l", 
          main ="", ylab = "Global Active Power (kilowatts)", xlab="",
          xaxt ="n")
-   axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   
+   axis(1, at=seq(from=1, to=nrow(plotData), by=(nrow(plotData)/length(dates))-1), labels=buildXaxis(dates)  )
    if (type == "png") { dev.off()}  
 }
 
 householdData <- readHouseholdPower(dataFile,dates)
-makePlot (plotFile,householdData,dates, "png")
+makePlot (plotFile,householdData,dates)

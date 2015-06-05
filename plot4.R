@@ -1,6 +1,6 @@
 dataFile="./household_power_consumption.txt"
 plotFile="./figure/plot4.png"
-
+dates=c("1/2/2007","2/2/2007")
 
 ##########################################
 ## readHouseholdPower
@@ -8,7 +8,7 @@ plotFile="./figure/plot4.png"
 ## 
 ## Provide some rational defaults for the dates and number
 ## of rows to read, to allow for quicker debugging and testing
-readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/2007")) {
+readHouseholdPower <- function(powerFile, dates=c("1/1/1970"), numRows=-1) {
    powerData <- read.csv (powerFile,
                           colClasses = c("character","character","numeric","numeric","numeric","numeric",
                           "numeric","numeric","numeric") , sep =';' , na.strings='?', nrows = numRows)
@@ -20,6 +20,23 @@ readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/20
    }
 
 ##########################################
+## buildXAxis - Build our X axis based on dates
+##
+## Pass in the vector of dates as strings, return a list of days
+
+buildXaxis <- function (dates) {
+  #convert to dates
+  dates <- strptime(dates, "%d/%m/%Y")
+  #append an additional date to allow for fence-posting
+  newDay <- dates[length(dates)]
+  newDay$mday <- newDay$mday+1
+  dates <- append (dates,newDay)
+  #convert to strings
+  days <- format(dates,"%a")
+  days
+}
+
+##########################################
 ## makePlot - plot 3 - three value line graph
 ## Build a histogram of the data 
 ## 
@@ -27,7 +44,7 @@ readHouseholdPower <- function(powerFile, numRows=-1, dates=c("1/2/2007","2/2/20
 ## type = "png" option is passed in then the histogram 
 ## will be written to a file specifice by outputFile
 
-makePlot <- function (outputFile,plotData,type="default") {
+makePlot <- function (outputFile, plotData, dates=c("1/1/1970"), type="default") {
    if (type == "png") { 
      png(filename=outputFile,width = 480, height = 480, units = "px")
    } 
@@ -37,31 +54,35 @@ makePlot <- function (outputFile,plotData,type="default") {
    plot (plotData$Global_active_power, type="l", 
          main ="", ylab = "Global Active Power", xlab="",
          xaxt ="n")
-   axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
-   
+   #axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   axis(1, at=seq(from=1, to=nrow(plotData), by=(nrow(plotData)/length(dates))-1), labels=buildXaxis(dates)  )
    ## Top Right
    plot (plotData$Voltage, type="l", 
          main ="", ylab = "Voltage", xlab="datetime",
          xaxt ="n")
-   axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   #axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   axis(1, at=seq(from=1, to=nrow(plotData), by=(nrow(plotData)/length(dates))-1), labels=buildXaxis(dates)  )
+
    ## Bottom Left
    plot (plotData$Sub_metering_1, type="l", 
          main ="", ylab = "Energy sub metering", xlab="",
          xaxt ="n", col="black")
    lines (plotData$Sub_metering_2, type="l", col="red")
    lines (plotData$Sub_metering_3, type="l", col="blue")
-   axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   #axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   axis(1, at=seq(from=1, to=nrow(plotData), by=(nrow(plotData)/length(dates))-1), labels=buildXaxis(dates)  )
    legend("topright",c("Sub_metering_1","Sub_metering_2","Sub_metering_3"), 
-          col=c("black","red","blue"), lty = 1, cex = .6, bty="n" )
+          col=c("black","red","blue"), lty = 1, cex = .8, bty="n" )
 
    ## Bottom Right
    plot (plotData$Global_reactive_power, type="l", 
          main ="", ylab="Global_reactive_power", xlab="datetime",
          xaxt ="n")
-   axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   #axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
+   axis(1, at=seq(from=1, to=nrow(plotData), by=(nrow(plotData)/length(dates))-1), labels=buildXaxis(dates)  )
    
    if (type == "png") { dev.off()}  
 }
 
-householdData <- readHouseholdPower(dataFile)
-makePlot (plotFile,householdData,"png")
+householdData <- readHouseholdPower(dataFile,dates)
+makePlot (plotFile,householdData,dates)
