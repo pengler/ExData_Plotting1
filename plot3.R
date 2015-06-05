@@ -9,15 +9,17 @@ dates=c("1/2/2007","2/2/2007")
 ## 
 ## Provide some rational defaults for the dates and number
 ## of rows to read, to allow for quicker debugging and testing
+
 readHouseholdPower <- function(powerFile, dates=c("1/1/1970"), numRows=-1) { 
    powerData <- read.csv (powerFile,
-                          colClasses = c("character","character","numeric","numeric","numeric","numeric",
-                          "numeric","numeric","numeric") , sep =';' , na.strings='?', nrows = numRows)
-   powerData2<- subset(powerData, (Date %in% dates ))
-   rm(powerData)  #clean up some memory
-   # convert the "Date" column to date objects
-   powerData2$Date <- as.Date(powerData2$Date)
-   powerData2
+                          colClasses = c("character","character","numeric",
+                                         "numeric","numeric","numeric",
+                                         "numeric","numeric","numeric") , 
+                          sep =';' , na.strings='?', nrows = numRows)
+   powerData2<- subset(powerData, (Date %in% dates ))      # subset based on dates
+   rm(powerData)                                           # clean up some memory
+   powerData2                                              # return dataframe of household 
+                                                           # power data
    }
 
 ##########################################
@@ -26,15 +28,13 @@ readHouseholdPower <- function(powerFile, dates=c("1/1/1970"), numRows=-1) {
 ## Pass in the vector of dates as strings, return a list of days
 
 buildXaxis <- function (dates) {
-  #convert to dates
-  dates <- strptime(dates, "%d/%m/%Y")
-  #append an additional date to allow for fence-posting
-  newDay <- dates[length(dates)]
+  dates <- strptime(dates, "%d/%m/%Y")                     # convert to dates
+  newDay <- dates[length(dates)]                           # append an additional date to allow 
+                                                           # for fence-posting
   newDay$mday <- newDay$mday+1
   dates <- append (dates,newDay)
-  #convert to strings
-  days <- format(dates,"%a")
-  days
+  days <- format(dates,"%a")                               # convert to strings
+  days                                                     # return list of dates
 }
 
 ##########################################
@@ -52,15 +52,18 @@ makePlot <- function (outputFile, plotData, dates=c("1/1/1970"), type="default")
    
    plot (plotData$Sub_metering_1, type="l", 
          main ="", ylab = "Energy sub metering", xlab="",
-         xaxt ="n", col="black")
-   lines (plotData$Sub_metering_2, type="l", col="red")
-   lines (plotData$Sub_metering_3, type="l", col="blue")
-   #axis(1, at=c(1,nrow(plotData)/2,nrow(plotData)),labels=c("Thu","Fri","Sat"))
-   axis(1, at=seq(from=1, to=nrow(plotData), by=(nrow(plotData)/length(dates))-1), labels=buildXaxis(dates)  )
-   legend("topright",c("Sub_metering_1","Sub_metering_2","Sub_metering_3"), 
-          col=c("black","red","blue"), lty = 1, cex = .9 )
+         xaxt ="n", col="black")                           # add Sub_metering_1 series (black)      
+   lines (plotData$Sub_metering_2, type="l", col="red")    # add Sub_metering_2 series (red)
+   lines (plotData$Sub_metering_3, type="l", col="blue")   # add Sub_metering_3 series (blue)
+   axis(1, at=seq(from=1, to=nrow(plotData), 
+                  by=(nrow(plotData)/length(dates))-1), 
+        labels=buildXaxis(dates))                          # add computed X-Axis
+   legend("topright",c("Sub_metering_1","Sub_metering_2",
+                       "Sub_metering_3"), 
+          col=c("black","red","blue"), lty = 1, cex = .9 ) # add legend - topright, scaled 90%
+   
    if (type == "png") { dev.off()}  
 }
 
 householdData <- readHouseholdPower(dataFile,dates)
-makePlot (plotFile,householdData,dates)
+makePlot (plotFile,householdData,dates,"png")
