@@ -1,5 +1,5 @@
 dataFile="./household_power_consumption.txt"
-plotFile="./figure/plot4.png"
+plotFile="plot4.png"
 dates=c("1/2/2007","2/2/2007")
 
 ##########################################
